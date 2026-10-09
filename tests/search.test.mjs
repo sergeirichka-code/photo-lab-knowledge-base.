@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+const m = await import('../src/search.mjs').catch(()=>({}));
+const cards=[{title:'Качество и брак',source:['6.5'],blocks:['Фото без смаза. Кривой горизонт — НЕ брак.']},{title:'Запрещено',source:['6.2'],blocks:['Сидеть в телефоне при гостях.']},{title:'Передача',source:['6.6'],blocks:['Печатник может вернуть серию, если есть брак.']}];
+test('phone substring and case',()=>{assert.equal(typeof m.matches,'function');assert.deepEqual(cards.filter(c=>m.matches(c,' ТЕЛЕФОН ')),[cards[1]]);});
+test('defects across categories',()=>{assert.equal(typeof m.matches,'function');assert.deepEqual(cards.filter(c=>m.matches(c,'брак')),[cards[0],cards[2]]);});
+test('empty, multiword, source, missing and literals',()=>{assert.equal(typeof m.matches,'function');assert.equal(cards.filter(c=>m.matches(c,' ')).length,3);assert.ok(m.matches(cards[1],'телефон гост'));assert.ok(m.matches(cards[0],'6.5'));assert.ok(!m.matches(cards[0],'[.*'));assert.ok(!m.matches(cards[0],'нетсовпадений'));assert.ok(!m.matches(cards[0],'брак телефон'));});
+test('yo normalization and non-overlapping literal highlights',()=>{assert.equal(typeof m.segments,'function');assert.deepEqual(m.segments('Съёмка [кадр]','съемка ['),[{text:'Съёмка',match:true},{text:' ',match:false},{text:'[',match:true},{text:'кадр]',match:false}]);assert.deepEqual(m.segments('брак','брак бра'),[{text:'брак',match:true}]);});
+test('suggested parents query finds real source variants',async()=>{const fs=await import('node:fs');const data=JSON.parse(fs.readFileSync(new URL('../public/photographer.json',import.meta.url),'utf8'));const results=data.cards.filter(c=>m.matches(c,'родители'));assert.ok(results.some(c=>c.source.includes('6.3')));assert.ok(results.some(c=>c.source.includes('6.7')));});
