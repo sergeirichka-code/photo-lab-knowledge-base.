@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
-import {Aperture,ArrowRight,ArrowUpRight,BookOpen,BriefcaseBusiness,Camera,Check,ChevronDown,Clock3,Download,FileText,Menu,Search,ShieldBan,Users,X,Zap,GraduationCap} from 'lucide-react';
+import {Aperture,ArrowRight,ArrowUpRight,BookOpen,BriefcaseBusiness,Camera,Check,ChevronDown,Clock3,FileText,Menu,Search,ShieldBan,Users,X,Zap,GraduationCap} from 'lucide-react';
 import data from '../public/photographer.json';
 import {matches,segments} from './search.mjs';
 import {activeSection} from './navigation.mjs';
@@ -46,7 +46,7 @@ export default function App(){
  {searching&&resultCount===0?<div className="empty-state"><Search size={32}/><h3>Ничего не нашлось</h3><p>Попробуйте другое слово или более короткий запрос.</p><button className="primary-button" onClick={()=>{setQuery('');input.current?.focus()}}>Показать все правила <ArrowRight size={17}/></button></div>:data.categories.map((category,index)=>{const cards=shown.filter(c=>c.category===category.id);if(!cards.length)return null;const Icon=icons[category.id as keyof typeof icons];return <section className={'rule-section '+category.id} id={category.id} tabIndex={-1} key={category.id}><div className="category-header"><span className="category-icon"><Icon size={20}/></span><div><h3>{category.title}<span>{cards.length}</span></h3><p>{category.description}</p></div><span className="section-index">0{index+1}</span></div><div className="cards">{cards.map(card=><RuleCard key={card.id} card={card} query={query} open={searching||expanded.has(card.id)} onToggle={()=>toggle(card.id)} forced={searching}/>)}</div></section>})}
  {mainVisible&&<section className="main-rule" id="main-rule"><div className="main-rule-label"><Aperture size={20}/><span>{data.mainRule.title}</span><small>§ 6.10</small></div><p>«<Highlight text={data.mainRule.blocks[0]} query={query}/>»</p><span className="main-rule-decor" aria-hidden="true">↗</span></section>}
  {!searching&&<Quiz onSource={jump}/>}
- <footer><div><span className="footer-brand">PHOTO LAB</span><span>Корпоративная книга · Раздел 6</span></div><a href="/photographer.json" download><Download size={15}/> Скачать регламент JSON</a></footer>
+ <footer><div><span className="footer-brand">PHOTO LAB</span><span>Корпоративная книга · Раздел 6</span></div></footer>
  </main></div></div>
 }
 function RuleCard({card,query,open,onToggle,forced}:{card:Card;query:string;open:boolean;onToggle:()=>void;forced:boolean}){return <article className={'rule-card '+(open?'is-open':'')} id={card.id} tabIndex={-1}><h4><button className="card-toggle" aria-expanded={open} aria-controls={card.id+'-content'} onClick={onToggle} disabled={forced}><span className="source-number">{card.source.map(s=><Highlight key={s} text={s} query={query}/>)}</span><span className="card-title"><Highlight text={card.title} query={query}/></span><ChevronDown size={18}/></button></h4><div id={card.id+'-content'} hidden={!open} className="card-content">{card.blocks.map((block,i)=><p key={i}><Highlight text={block} query={query}/></p>)}</div></article>}
